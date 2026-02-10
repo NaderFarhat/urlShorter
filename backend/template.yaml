@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: provided.al2023
+    Architectures:
+      - arm64
+    Timeout: 10
+    MemorySize: 128
+  HttpApi:
+    CorsConfiguration:
+      AllowOrigins:
+        - "*"
+      AllowHeaders:
+        - "content-type"
+      AllowMethods:
+        - "GET"
+        - "POST"
+        - "OPTIONS"
+      MaxAge: 600
+
+Resources:
+  UrlShortenerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: urlShortener
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: shortCode
+          AttributeType: S
+      KeySchema:
+        - AttributeName: shortCode
+          KeyType: HASH
+
+  ShortenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: bootstrap
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UrlShortenerTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UrlShortenerTable
+      Events:
+        ShortenApi:
+          Type: HttpApi
+          Properties:
+            Path: /shorten
+            Method: POST
+    Metadata:
+      BuildMethod: makefile
+
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: bootstrap
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UrlShortenerTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UrlShortenerTable
+      Events:
+        RedirectApi:
+          Type: HttpApi
+          Properties:
+            Path: /{shortenCode}
+            Method: GET
+    Metadata:
+      BuildMethod: makefile
+
+Outputs:
+  HttpApiUrl:
+    Description: HTTP API endpoint
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"

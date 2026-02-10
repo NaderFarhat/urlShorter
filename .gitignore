@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Env files
+.env*
+!.env.example
+
+# SAM / AWS
+.aws-sam/
+
+# Go build output (if any)
+/bin/
+/build/
+*.exe
+*.test
+*.out
+
+# IDE
+.vscode/
+.idea/
