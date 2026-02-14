@@ -167,20 +167,38 @@ const UrlShortener = () => {
 
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      const shortCode = generateShortUrl()
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://your-api-url.com'
+      const response = await fetch(`${apiUrl}/shorten`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url.trim() }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
       const newUrl = {
         id: Date.now(),
-        originalUrl: url,
-        shortUrl: `https://short.ly/${shortCode}`,
+        originalUrl: data.longUrl,
+        shortUrl: data.shortUrl,
+        shortCode: data.shortCode,
         createdAt: new Date().toISOString()
       }
       
       setUrls(prev => [newUrl, ...prev])
       setUrl('')
+    } catch (error) {
+      console.error('Error shortening URL:', error)
+      setError('Failed to shorten URL. Please try again.')
+    } finally {
       setIsLoading(false)
-    }, 500)
+    }
   }
 
   const copyToClipboard = async (text) => {
