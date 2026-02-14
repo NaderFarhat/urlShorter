@@ -4,10 +4,10 @@ import styled from 'styled-components'
 const Container = styled.div`
   width: 100%;
   max-width: 600px;
-  background-color: ${props => props.theme.colors.mercury};
+  background-color: ${props => props.theme.colors.liquorice};
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 `
 
 const InputContainer = styled.div`
@@ -22,8 +22,8 @@ const Input = styled.input`
   border: 2px solid ${props => props.theme.colors.twilightGrey};
   border-radius: 8px;
   font-size: 16px;
-  background-color: ${props => props.theme.colors.snow};
-  color: ${props => props.theme.colors.onyx};
+  background-color: ${props => props.theme.colors.onyx};
+  color: ${props => props.theme.colors.snow};
   transition: border-color 0.2s ease;
 
   &:focus {
@@ -67,7 +67,7 @@ const UrlList = styled.div`
 `
 
 const UrlItem = styled.div`
-  background-color: ${props => props.theme.colors.snow};
+  background-color: ${props => props.theme.colors.onyx};
   border: 1px solid ${props => props.theme.colors.twilightGrey};
   border-radius: 8px;
   padding: 16px;
@@ -87,7 +87,7 @@ const UrlInfo = styled.div`
 
 const OriginalUrl = styled.div`
   font-size: 14px;
-  color: ${props => props.theme.colors.liquorice};
+  color: ${props => props.theme.colors.mercury};
   margin-bottom: 4px;
   word-break: break-all;
 `
@@ -123,7 +123,7 @@ const ErrorMessage = styled.div`
 
 const EmptyState = styled.div`
   text-align: center;
-  color: ${props => props.theme.colors.twilightGrey};
+  color: ${props => props.theme.colors.mercury};
   padding: 2rem;
 `
 
