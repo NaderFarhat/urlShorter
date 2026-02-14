@@ -1,103 +1,236 @@
-# urlShorter App
+# URL Shortener App
 
-A minimal URL shortener built with:
+A modern URL shortener application built with serverless architecture and a sleek dark-themed frontend.
+
+## Architecture
 
 - **Backend**: AWS Serverless Application Model (SAM) + Go (AWS Lambda) + DynamoDB + API Gateway (HTTP API)
-- **Frontend**: Next.js (App Router) + React + styled-components
+- **Frontend**: React + Vite + styled-components (dark theme design)
+- **CI/CD**: GitHub Actions for automatic backend deployment
 
-## Repository structure
+## Repository Structure
 
-- `backend/`
-  - AWS SAM application (Go Lambdas + DynamoDB + HttpApi)
-- `frontend/`
-  - Next.js app (styled-components, minimal UI) that calls the backend
+```
+urlshorter-app/
+├── backend/
+│   ├── cmd/
+│   │   ├── shorten/     # Lambda function for URL shortening
+│   │   └── redirect/   # Lambda function for URL redirection
+│   ├── template.yaml    # SAM template for AWS resources
+│   ├── samconfig.toml   # SAM configuration
+│   └── go.mod         # Go dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── UrlShortener.jsx
+│   │   ├── styles/
+│   │   │   ├── colors.js
+│   │   │   └── GlobalStyles.js
+│   │   └── App.jsx
+│   ├── package.json
+│   └── vite.config.js
+└── .github/
+    └── workflows/
+        └── deploy-backend.yml
+```
 
-## API
+## API Endpoints
 
-The backend exposes:
+The backend exposes a REST API:
 
-- `POST /shorten`
-  - Request JSON: `{ "url": "https://example.com" }`
-  - Response JSON: `{ "shortCode": "...", "shortUrl": "...", "longUrl": "..." }`
-- `GET /{shortenCode}`
-  - 302 redirect to the stored long URL
+### `POST /shorten`
+Shortens a URL and returns the shortened version.
+
+**Request:**
+```json
+{
+  "url": "https://example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "shortCode": "abc123",
+  "shortUrl": "https://your-api.com/abc123",
+  "longUrl": "https://example.com"
+}
+```
+
+### `GET /{shortCode}`
+Redirects to the original URL associated with the short code.
+
+**Response:** 302 redirect to the stored long URL
 
 ## Prerequisites
 
-### Backend
+### Backend Development
+- Go 1.23+
+- AWS SAM CLI
+- AWS credentials configured (`aws configure`)
+- AWS CLI
 
-- Go installed (matching your project/tooling)
-- AWS SAM CLI installed
-- AWS credentials configured (e.g. `aws configure`)
+### Frontend Development
+- Node.js 14+ (LTS recommended)
+- npm or yarn
+
+## Local Development
 
 ### Frontend
 
-- Node.js (LTS recommended)
-- npm
-
-## Running the frontend locally
-
-1) Install dependencies:
-
+1. **Install dependencies:**
 ```bash
 cd frontend
 npm install
 ```
 
-2) Create `frontend/.env.local`:
-
+2. **Configure API URL:**
+Create a `.env.local` file in the frontend directory:
 ```env
-NEXT_PUBLIC_API_URL=https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com
+VITE_API_URL=http://localhost:3001  # For local backend testing
+# OR
+VITE_API_URL=https://your-deployed-api.com  # For production API
 ```
 
-Notes:
-
-- Do **not** add `/shorten` at the end. The app will call `/shorten` automatically.
-- The API URL must be the **HTTP API base URL** (see the backend deployment outputs).
-
-3) Start the dev server:
-
+3. **Start development server:**
 ```bash
 npm run dev
 ```
 
-Open:
+4. **Access the application:**
+Open http://localhost:5173 in your browser
 
-- http://localhost:3000
+### Backend (Local Testing)
 
-### Production build (local)
-
+1. **Build the SAM application:**
 ```bash
-cd frontend
-npm run build
-npm run start
+cd backend
+sam build
 ```
 
-## Deploying the backend (AWS SAM)
-
-From `backend/`:
-
+2. **Run locally:**
 ```bash
+sam local start-api
+```
+
+The API will be available at http://localhost:3000
+
+## Deployment
+
+### Backend (Production)
+
+The backend is automatically deployed via GitHub Actions when changes are pushed to the `main` branch.
+
+**Manual Deployment:**
+```bash
+cd backend
 sam build
 sam deploy
 ```
 
-This project contains `backend/samconfig.toml` with default deploy parameters.
+**Required GitHub Secrets:**
+- `AWS_ACCESS_KEY_ID`: AWS access key
+- `AWS_SECRET_ACCESS_KEY`: AWS secret key
+- `AWS_DEFAULT_REGION`: AWS region (e.g., `us-east-2`)
 
-After deployment, grab the API base URL from the stack outputs (`HttpApiUrl`) and set it as `NEXT_PUBLIC_API_URL` in the frontend.
+### Frontend (Production)
 
-## CORS
+#### Option 1: Vercel
+1. Connect your repository to Vercel
+2. Set environment variable: `VITE_API_URL`
+3. Deploy automatically on push
 
-CORS is enabled for the HttpApi via `Globals.HttpApi.CorsConfiguration` in `backend/template.yaml`.
+#### Option 2: Netlify
+1. Connect your repository to Netlify
+2. Set environment variable: `VITE_API_URL`
+3. Deploy automatically on push
 
-If you deploy the frontend to Amplify, consider restricting allowed origins to your Amplify domain instead of `*`.
+#### Option 3: AWS S3 + CloudFront
+1. Build the frontend:
+```bash
+cd frontend
+npm run build
+```
 
-## Deploying the frontend (AWS Amplify)
+2. Upload `dist/` folder to S3
+3. Configure CloudFront distribution
 
-The frontend contains an `amplify.yml` that works with Amplify Hosting.
+## Features
 
-In Amplify, set this environment variable:
+### Frontend
+- ✅ Modern dark theme design
+- ✅ Responsive layout
+- ✅ URL validation
+- ✅ Copy to clipboard functionality
+- ✅ Real-time URL shortening
+- ✅ Smooth animations and transitions
 
-- `NEXT_PUBLIC_API_URL` = `https://...execute-api...amazonaws.com`
+### Backend
+- ✅ Serverless architecture
+- ✅ Auto-scaling with AWS Lambda
+- ✅ Fast response with DynamoDB
+- ✅ URL validation and sanitization
+- ✅ Click tracking (hits counter)
+- ✅ CORS enabled
+- ✅ Automatic CI/CD deployment
 
-Then trigger a build/deploy.
+## Color Palette
+
+The application uses a sophisticated dark theme:
+- **Onyx**: `#0F0F0F` (main background)
+- **Liquorice**: `#1A1A1A` (card backgrounds)
+- **Twilight Grey**: `#2A2A2A` (borders and inputs)
+- **Deep Saffron**: `#FF9933` (accent color, buttons, links)
+- **Mercury**: `#F1F1F1` (secondary text)
+- **Snow**: `#FCFCFC` (primary text)
+
+## Security Considerations
+
+- CORS is configured for cross-origin requests
+- URL validation prevents malicious inputs
+- AWS IAM roles follow least privilege principle
+- No sensitive data is exposed in the frontend
+
+## Monitoring and Logging
+
+- AWS CloudWatch for Lambda logs
+- AWS X-Ray for request tracing (if enabled)
+- GitHub Actions for deployment monitoring
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Troubleshooting
+
+### Common Issues
+
+**Frontend build fails:**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**SAM deployment fails:**
+- Check AWS credentials: `aws configure list`
+- Verify region in `samconfig.toml`
+- Check IAM permissions
+
+**CORS errors:**
+- Verify API URL is correctly set in frontend
+- Check CORS configuration in `backend/template.yaml`
+
+### Getting Help
+
+- Check the [GitHub Issues](https://github.com/NaderFarhat/urlShorter/issues) for known problems
+- Create a new issue for bugs or feature requests
+- Review AWS CloudWatch logs for backend errors
