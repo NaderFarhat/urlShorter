@@ -30,16 +30,31 @@ jobs:
           # Verify installation
           sam --version
 
+      - name: Debug Environment Variables
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: |
+          echo "=== DEBUG: Checking environment variables ==="
+          echo "AWS_ACCESS_KEY_ID length: ${#AWS_ACCESS_KEY_ID}"
+          echo "AWS_SECRET_ACCESS_KEY length: ${#AWS_SECRET_ACCESS_KEY}"
+          echo "AWS_DEFAULT_REGION: '$AWS_DEFAULT_REGION'"
+          echo "AWS_DEFAULT_REGION length: ${#AWS_DEFAULT_REGION}"
+          echo "=========================================="
+
       - name: Configure AWS Credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
           # Check if required secrets are set
           if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ] || [ -z "$AWS_DEFAULT_REGION" ]; then
             echo "Error: AWS credentials not properly configured"
-            echo "Please set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION secrets"
+            echo "AWS_ACCESS_KEY_ID is empty: $([ -z "$AWS_ACCESS_KEY_ID" ] && echo "YES" || echo "NO")"
+            echo "AWS_SECRET_ACCESS_KEY is empty: $([ -z "$AWS_SECRET_ACCESS_KEY" ] && echo "YES" || echo "NO")"
+            echo "AWS_DEFAULT_REGION is empty: $([ -z "$AWS_DEFAULT_REGION" ] && echo "YES" || echo "NO")"
             exit 1
           fi
           
